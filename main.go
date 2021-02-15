@@ -63,6 +63,7 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 			thankPage = "http://localhost:1313/thanks"
 		}
 		http.Redirect(w, r, thankPage, 301)
+		return
 	}
 	return
 }
