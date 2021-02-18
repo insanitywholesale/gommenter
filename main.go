@@ -57,6 +57,7 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return
 		}
+		log.Println(name, "said:", content)
 		// redirect to thank you page
 		log.Println("thankpage", thankPage)
 		http.Redirect(w, r, thankPage, 301)
@@ -70,10 +71,10 @@ func main() {
 		pgURL = "postgresql://tester:Apasswd@localhost:5432/?sslmode=disable"
 	}
 	client, err := newPostgresClient(pgURL)
-	pgClient = client
 	if err != nil {
 		log.Fatal("error connecting to postgres", err)
 	}
+	pgClient = client
 	thankPage = os.Getenv("THANK_PAGE")
 	if thankPage == "" {
 		thankPage = "http://localhost:1313/thanks"
