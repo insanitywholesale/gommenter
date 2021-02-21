@@ -13,6 +13,8 @@ const createtable = `CREATE TABLE IF NOT EXISTS comments (name TEXT, content TEX
 var (
 	pgClient *sql.DB
 	thankPage string
+	commitHash string
+	commitDate string
 )
 
 func newPostgresClient(postgresURL string) (*sql.DB, error) {
@@ -65,6 +67,48 @@ func addComment(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func getComments(w http.ResponseWriter, r *http.Request) {
+	var results string
+	var curRowName string
+	var curRowContent string
+	if r.Method == "GET" {
+		privID := r.Header.Get("Comrade-ID")
+		log.Println("privID:", privID)
+		comID := os.Getenv("COMRADE_ID")
+		if privID == comID {
+			log.Println("comradeID:", comID)
+			query := `SELECT name, content FROM comments`
+			rows, err := pgClient.Query(query)
+			if err != nil {
+				log.Println("uh-oh, getComments stinky!")
+				return
+			}
+			defer rows.Close()
+			for rows.Next() {
+				err = rows.Scan(&curRowName, &curRowContent)
+				if err != nil {
+					log.Println(err)
+				}
+				results = results + "user: " + curRowName + " said: " + curRowContent + "\n"
+			}
+			log.Print("comments-> ", results)
+			w.Write([]byte(results))
+			return
+		}
+		return
+	}
+	return
+}
+
+func getInfo(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		w.Write([]byte("commitHash: "+commitHash+"\n"))
+		w.Write([]byte("commitDate: "+commitDate+"\n"))
+		return
+	}
+	return
+}
+
 func main() {
 	pgURL := os.Getenv("PG_URL")
 	if pgURL == "" {
@@ -80,6 +124,8 @@ func main() {
 		thankPage = "http://localhost:1313/thanks"
 	}
 	http.HandleFunc("/api/form/new", addComment)
+	http.HandleFunc("/api/comments", getComments)
+	http.HandleFunc("/info", getInfo)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "9097"
