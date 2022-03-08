@@ -2,17 +2,18 @@ package main
 
 import (
 	"database/sql"
-	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 const createtable = `CREATE TABLE IF NOT EXISTS comments (name TEXT, content TEXT);`
 
 var (
-	pgClient *sql.DB
-	thankPage string
+	pgClient   *sql.DB
+	thankPage  string
 	commitHash string
 	commitDate string
 )
@@ -102,8 +103,8 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 
 func getInfo(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		w.Write([]byte("commitHash: "+commitHash+"\n"))
-		w.Write([]byte("commitDate: "+commitDate+"\n"))
+		w.Write([]byte("commitHash: " + commitHash + "\n"))
+		w.Write([]byte("commitDate: " + commitDate + "\n"))
 		return
 	}
 	return
